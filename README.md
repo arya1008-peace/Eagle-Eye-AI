@@ -377,38 +377,21 @@ Such nonlinear interactions are learned automatically by XGBoost during training
 
 # Risk Score Generation
 
-After training, the model predicts the probability that a customer belongs to the default class.
+After training, the XGBoost model predicts the probability that a customer will default on a loan.
 
-Mathematically,
+Instead of generating a manually weighted score, the model evaluates hundreds of learned decision trees and estimates the customer's probability of default.
 
-[
-Risk\ Score = P(Default \mid Customer\ Features)
-]
-
-The output is therefore **not** a manually calculated score.
-
-Instead, it represents the probability estimated by the trained XGBoost model after evaluating hundreds of learned decision trees.
-
-The probability always lies between
-
-[
-0 \le P \le 1
-]
+The predicted probability always lies between **0** and **1**.
 
 Examples:
 
-| Risk Score | Interpretation             |
-| ---------- | -------------------------- |
-| 0.12       | 12% probability of default |
-| 0.48       | 48% probability of default |
-| 0.91       | 91% probability of default |
+| Risk Score | Interpretation |
+|------------|---------------|
+| 0.12 | 12% probability of default |
+| 0.48 | 48% probability of default |
+| 0.91 | 91% probability of default |
 
-Thus,
-
-a higher score indicates a greater likelihood of future loan default.
-
----
-
+A higher score indicates a greater likelihood of future loan default.
 # Risk Categorization
 
 Although the model produces continuous probabilities, business users generally prefer discrete categories.
@@ -658,22 +641,13 @@ Repeated missed installments often precede loan default.
 
 Average Payment Ratio compares the amount paid against the required installment.
 
-[
-Average\ Payment\ Ratio
-=======================
+Formula:
 
-\frac{Payment}{Required\ Installment}
-]
+`Average Payment Ratio = Amount Paid ÷ Required Installment`
 
-Values close to
+A value close to **1.0** indicates that customers generally pay their installments in full.
 
-1.0
-
-indicate that customers generally pay their installments completely.
-
-Lower values suggest recurring underpayments.
-
----
+Values below **1.0** suggest recurring underpayments, which may indicate emerging financial stress.
 
 ## Underpayment Count
 
@@ -685,43 +659,27 @@ Even small recurring underpayments may indicate declining repayment ability.
 
 ## Total Payment Shortfall
 
-Total Shortfall represents the cumulative amount that customers failed to pay across all installments.
+Total Payment Shortfall represents the cumulative amount that customers failed to pay across all installments.
 
-Mathematically,
+Formula:
 
-[
-Total\ Shortfall
-================
+`Total Shortfall = Required Installment − Actual Payment`
 
-## Required\ Installment
-
-Actual\ Payment
-]
-
-summed across every installment where an underpayment occurred.
+This value is calculated only when the customer pays less than the required installment amount and is summed across all such occurrences.
 
 Large cumulative shortfalls indicate increasing unpaid obligations.
 
 This feature was specifically introduced because customers who repeatedly underpay today may become complete defaulters in future repayment cycles.
 
----
-
 ## Payment Completion Rate
 
-Measures the percentage of installments that were fully paid.
+Payment Completion Rate measures the percentage of installments that were paid completely.
 
-[
-Completion\ Rate
-================
+Formula:
 
-\frac{Fully\ Paid\ Installments}
-{Total\ Installments}
-]
+`Payment Completion Rate = Fully Paid Installments ÷ Total Installments`
 
-Higher values indicate stronger repayment discipline.
-
----
-
+Higher values indicate stronger repayment discipline, while lower values suggest that customers frequently make partial or incomplete payments.
 ## Previous Loan Rejections
 
 Historical loan rejections often reflect prior financial concerns identified during earlier credit evaluations.
@@ -732,20 +690,20 @@ Repeated rejections therefore contribute additional evidence of elevated future 
 
 ## Credit Utilization
 
-Credit utilization measures dependence on revolving credit.
+Credit utilization measures the percentage of available credit that is currently being used.
 
-[
-Utilization
-===========
+Formula:
 
-\frac{Outstanding\ Balance}
-{Credit\ Limit}
-]
+`Credit Utilization = Outstanding Credit Card Balance ÷ Credit Limit`
 
-Customers consistently operating near their credit limits typically have reduced financial flexibility.
+For example:
 
----
+- Credit Limit = ₹1,00,000
+- Outstanding Balance = ₹80,000
 
+Credit Utilization = **80%**
+
+Customers consistently operating near their credit limits typically have reduced financial flexibility and a higher likelihood of repayment difficulties.
 ## Outstanding Debt
 
 Outstanding debt measures total unpaid liabilities.
