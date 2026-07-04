@@ -1,0 +1,21 @@
+sk_id_curr,risk_score,risk_level,primary_risk_driver,action_taken
+116731,0.5167513,Medium,Multiple Moderate Risk Factors,Customer Relationship Manager Call
+206780,0.26442626,Low,Multiple Moderate Risk Factors,Continue Monitoring
+131190,0.59246784,Medium,Short Credit History,Customer Relationship Manager Call
+323749,0.35199156,Low,Payment Shortfall,Continue Monitoring
+425755,0.5213097,Medium,Short Credit History,Customer Relationship Manager Call
+283913,0.6448051,Medium,Short Credit History,Customer Relationship Manager Call
+277735,0.25742406,Low,Payment Shortfall,Continue Monitoring
+302088,0.35017145,Low,Multiple Moderate Risk Factors,Continue Monitoring
+439140,0.29727283,Low,Multiple Moderate Risk Factors,Continue Monitoring
+389228,0.35547823,Low,Missed Installments,Continue Monitoring
+212772,0.60463995,Medium,Payment Shortfall,Customer Relationship Manager Call
+295355,0.27892753,Low,Multiple Moderate Risk Factors,Continue Monitoring
+241443,0.5441657,Medium,Payment Shortfall,Customer Relationship Manager Call
+288669,0.59008265,Medium,Short Credit History,Customer Relationship Manager Call
+264917,0.5327343,Medium,Payment Shortfall,Customer Relationship Manager Call
+232737,0.6958164,Medium,Payment Shortfall,Customer Relationship Manager Call
+454264,0.19782282,Low,Multiple Moderate Risk Factors,Continue Monitoring
+164968,0.4332791,Medium,Multiple Moderate Risk Factors,Customer Relationship Manager Call
+158488,0.30147412,Low,Payment Shortfall,Continue Monitoring
+432855,0.3221145,Low,Consistent Underpayment,Continue Monitoring
