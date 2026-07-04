@@ -216,3 +216,317 @@ Eagle-Eye-AI/
 *A complete AWS architecture diagram illustrating the end-to-end workflow is included below.*
 
 *(Insert architecture diagram here after it has been created.)*
+
+# Machine Learning Pipeline
+
+The machine learning workflow was developed in two stages. The first stage focused on establishing a complete cloud-based prediction pipeline, while the second stage concentrated on improving prediction quality through richer feature engineering and explainable outputs.
+
+---
+
+# Phase 1 Pipeline
+
+The objective of Phase 1 was to build an end-to-end credit risk prediction system capable of estimating the probability that a customer would default on a loan.
+
+The pipeline consists of the following stages.
+
+```
+Raw Banking Data
+        │
+        ▼
+Amazon S3
+        │
+        ▼
+Amazon Athena
+(Feature Engineering)
+        │
+        ▼
+Candidate Risk Dataset
+        │
+        ▼
+Amazon SageMaker
+(XGBoost Training)
+        │
+        ▼
+Risk Score Prediction
+        │
+        ├────────► Power BI Dashboard
+        │
+        └────────► DynamoDB
+                       │
+                       ▼
+                   AWS Lambda
+                       │
+                       ▼
+                  Amazon SNS
+```
+
+The final output of Phase 1 was a customer-specific probability of default together with a corresponding risk category.
+
+---
+
+# Phase 1 Feature Engineering
+
+Rather than training the model directly on raw banking data, customer behaviour was summarized into meaningful numerical features.
+
+Each customer record consisted of the following engineered attributes.
+
+| Feature                    | Description                                                 |
+| -------------------------- | ----------------------------------------------------------- |
+| Active Loans               | Number of currently active loans                            |
+| Average Delay              | Average installment payment delay                           |
+| Maximum Delay              | Maximum observed payment delay                              |
+| Late Payment Count         | Number of delayed installment payments                      |
+| Outstanding Debt           | Total unpaid debt across all loans                          |
+| Average Credit Utilization | Average percentage of available credit currently being used |
+
+These features were computed using SQL inside Amazon Athena before model training.
+
+Feature engineering significantly reduces data complexity while preserving customer behaviour patterns that are useful for prediction.
+
+---
+
+# Why These Features Matter
+
+Each engineered feature captures a different aspect of customer financial behaviour.
+
+### Active Loans
+
+Customers with multiple active loans generally have higher repayment obligations.
+
+As the number of simultaneous financial commitments increases, the probability of financial stress may also increase.
+
+---
+
+### Average Payment Delay
+
+Average delay measures how consistently late a customer pays their installments.
+
+Occasional late payments are common.
+
+Consistently delayed payments, however, often indicate declining repayment discipline.
+
+---
+
+### Maximum Payment Delay
+
+Maximum delay captures the worst repayment behaviour observed.
+
+A customer who once missed a payment by several months represents a much greater concern than one whose payments were delayed by only a few days.
+
+---
+
+### Late Payment Count
+
+Instead of measuring how late a customer pays, this feature measures how often late payments occur.
+
+Frequency often carries more predictive information than isolated extreme events.
+
+---
+
+### Outstanding Debt
+
+Large unpaid debt reduces future repayment capacity.
+
+As total debt increases, customers have less available income to meet future obligations.
+
+---
+
+### Average Credit Utilization
+
+Credit utilization measures the percentage of available credit currently being used.
+
+For example,
+
+Credit Limit = $10,000
+
+Outstanding Balance = $8,000
+
+Utilization = 80%
+
+High utilization generally indicates greater financial dependence on borrowed money.
+
+---
+
+# Model Selection
+
+An XGBoost classifier was selected because it performs exceptionally well on structured financial datasets.
+
+Unlike linear models, XGBoost can automatically learn complex relationships between variables.
+
+For example,
+
+A customer with
+
+* low debt
+* many active loans
+
+may not necessarily be risky.
+
+Similarly,
+
+a customer with
+
+* high debt
+* excellent payment history
+
+may still represent relatively low default risk.
+
+Such nonlinear interactions are learned automatically by XGBoost during training.
+
+---
+
+# Risk Score Generation
+
+After training, the model predicts the probability that a customer belongs to the default class.
+
+Mathematically,
+
+[
+Risk\ Score = P(Default \mid Customer\ Features)
+]
+
+The output is therefore **not** a manually calculated score.
+
+Instead, it represents the probability estimated by the trained XGBoost model after evaluating hundreds of learned decision trees.
+
+The probability always lies between
+
+[
+0 \le P \le 1
+]
+
+Examples:
+
+| Risk Score | Interpretation             |
+| ---------- | -------------------------- |
+| 0.12       | 12% probability of default |
+| 0.48       | 48% probability of default |
+| 0.91       | 91% probability of default |
+
+Thus,
+
+a higher score indicates a greater likelihood of future loan default.
+
+---
+
+# Risk Categorization
+
+Although the model produces continuous probabilities, business users generally prefer discrete categories.
+
+Customers are therefore classified into three risk groups.
+
+| Risk Score  | Category    |
+| ----------- | ----------- |
+| 0.00 – 0.40 | Low Risk    |
+| 0.40 – 0.70 | Medium Risk |
+| 0.70 – 1.00 | High Risk   |
+
+These thresholds provide a practical balance between sensitivity and interpretability.
+
+They also simplify customer prioritization for relationship managers.
+
+---
+
+# Phase 2 Pipeline
+
+While Phase 1 predicts default probability successfully, it does not explain the underlying causes.
+
+Phase 2 extends the pipeline by incorporating additional behavioural and financial indicators.
+
+```
+Phase 1 Dataset
+        │
+        ▼
+Additional Feature Engineering
+        │
+        ▼
+Enriched Dataset
+        │
+        ▼
+Improved XGBoost Model
+        │
+        ▼
+Risk Score
+        │
+        ├────────► Risk Level
+        │
+        ├────────► Primary Risk Driver
+        │
+        └────────► Recommended Action
+```
+
+Instead of simply answering
+
+*"Will this customer default?"*
+
+the system now also answers
+
+*"Why is this customer risky?"*
+
+and
+
+*"What should the bank do next?"*
+
+---
+
+# Phase 2 Feature Engineering
+
+The second phase introduces richer financial behaviour indicators.
+
+### Customer Profile
+
+* Annual Income
+* Employment Duration
+
+These features estimate long-term repayment capacity.
+
+---
+
+### Credit Behaviour
+
+* Total Loans
+* Credit History Length
+
+Customers with longer and healthier borrowing histories generally exhibit more predictable repayment behaviour.
+
+---
+
+### Repayment Behaviour
+
+* Average Days Late
+* Maximum Days Late
+* Missed Installments
+
+These features quantify payment discipline over time.
+
+---
+
+### Underpayment Behaviour
+
+Instead of only measuring delayed payments, Phase 2 also evaluates partial payments.
+
+Additional features include
+
+* Average Payment Ratio
+* Underpayment Count
+* Total Payment Shortfall
+* Payment Completion Rate
+
+These metrics capture customers who consistently pay less than the required installment amount.
+
+Such behaviour may indicate emerging financial stress even before complete payment defaults occur.
+
+---
+
+### Credit Card Behaviour
+
+Maximum Credit Utilization identifies customers whose dependence on revolving credit has reached unusually high levels.
+
+---
+
+### Previous Loan Applications
+
+Previous Rejections measure historical lending decisions.
+
+Repeated loan rejections often indicate underlying financial weaknesses that remain relevant during future credit assessments.
+
