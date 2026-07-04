@@ -530,3 +530,335 @@ Previous Rejections measure historical lending decisions.
 
 Repeated loan rejections often indicate underlying financial weaknesses that remain relevant during future credit assessments.
 
+# Explainable AI
+
+Machine learning models often produce highly accurate predictions but provide little explanation regarding the reasoning behind those predictions.
+
+In financial institutions, prediction accuracy alone is insufficient.
+
+Loan officers and relationship managers require answers to questions such as:
+
+* Why is this customer considered risky?
+* Which financial behaviour contributed the most?
+* What action should be taken?
+
+To improve interpretability, Phase 2 introduces two additional outputs alongside the predicted risk score:
+
+* Primary Risk Driver
+* Recommended Business Action
+
+This transforms the model from a prediction engine into an explainable decision-support system.
+
+---
+
+# Primary Risk Driver
+
+Although XGBoost internally evaluates hundreds of decision trees to estimate the probability of default, business users cannot easily interpret those internal decisions.
+
+To provide meaningful explanations, the project identifies the customer's most significant behavioural risk indicator.
+
+Instead of exposing complex tree structures, engineered financial features are analysed after prediction.
+
+The feature with the greatest observed financial concern is reported as the customer's **Primary Risk Driver**.
+
+Possible outputs include:
+
+* High Outstanding Debt
+* Frequent Underpayments
+* Large Payment Shortfall
+* High Credit Utilization
+* Previous Loan Rejections
+* Multiple Missed Installments
+* Long Payment Delays
+* Low Payment Completion Rate
+* Short Employment History
+* Low Annual Income
+
+Example:
+
+| Customer | Risk Score | Primary Risk Driver     |
+| -------- | ---------: | ----------------------- |
+| 100125   |       0.89 | High Outstanding Debt   |
+| 100431   |       0.81 | Frequent Underpayments  |
+| 101023   |       0.77 | High Credit Utilization |
+
+This provides relationship managers with an immediate explanation of the customer's financial behaviour.
+
+---
+
+# Why These Features Influence Risk
+
+Although the machine learning model determines the final prediction, each engineered feature represents a meaningful financial indicator.
+
+## Annual Income
+
+Lower annual income generally implies reduced repayment capacity.
+
+Customers with limited disposable income are more vulnerable to financial shocks.
+
+---
+
+## Employment Years
+
+Stable employment often reflects consistent income.
+
+Customers with very short employment histories may experience greater income uncertainty.
+
+---
+
+## Active Loans
+
+A larger number of active loans increases monthly repayment obligations.
+
+Higher financial commitments may increase repayment risk.
+
+---
+
+## Total Loans
+
+This feature represents the customer's overall borrowing exposure.
+
+Repeated borrowing may indicate greater financial dependence on credit.
+
+---
+
+## Credit History Length
+
+Customers with longer credit histories generally provide more evidence of repayment behaviour.
+
+Very limited credit histories often make future repayment behaviour more difficult to predict.
+
+---
+
+## Average Days Late
+
+Measures overall payment discipline.
+
+Consistently late payments suggest increasing financial stress.
+
+---
+
+## Maximum Days Late
+
+Captures the most severe repayment delay observed.
+
+A single extremely delayed payment may indicate temporary financial hardship or repayment failure.
+
+---
+
+## Missed Installments
+
+Measures how frequently scheduled payments are delayed.
+
+Repeated missed installments often precede loan default.
+
+---
+
+## Average Payment Ratio
+
+Average Payment Ratio compares the amount paid against the required installment.
+
+[
+Average\ Payment\ Ratio
+=======================
+
+\frac{Payment}{Required\ Installment}
+]
+
+Values close to
+
+1.0
+
+indicate that customers generally pay their installments completely.
+
+Lower values suggest recurring underpayments.
+
+---
+
+## Underpayment Count
+
+Rather than measuring payment delay, this feature measures how often customers pay less than the required installment.
+
+Even small recurring underpayments may indicate declining repayment ability.
+
+---
+
+## Total Payment Shortfall
+
+Total Shortfall represents the cumulative amount that customers failed to pay across all installments.
+
+Mathematically,
+
+[
+Total\ Shortfall
+================
+
+## Required\ Installment
+
+Actual\ Payment
+]
+
+summed across every installment where an underpayment occurred.
+
+Large cumulative shortfalls indicate increasing unpaid obligations.
+
+This feature was specifically introduced because customers who repeatedly underpay today may become complete defaulters in future repayment cycles.
+
+---
+
+## Payment Completion Rate
+
+Measures the percentage of installments that were fully paid.
+
+[
+Completion\ Rate
+================
+
+\frac{Fully\ Paid\ Installments}
+{Total\ Installments}
+]
+
+Higher values indicate stronger repayment discipline.
+
+---
+
+## Previous Loan Rejections
+
+Historical loan rejections often reflect prior financial concerns identified during earlier credit evaluations.
+
+Repeated rejections therefore contribute additional evidence of elevated future risk.
+
+---
+
+## Credit Utilization
+
+Credit utilization measures dependence on revolving credit.
+
+[
+Utilization
+===========
+
+\frac{Outstanding\ Balance}
+{Credit\ Limit}
+]
+
+Customers consistently operating near their credit limits typically have reduced financial flexibility.
+
+---
+
+## Outstanding Debt
+
+Outstanding debt measures total unpaid liabilities.
+
+As debt increases, future repayment capacity generally decreases.
+
+---
+
+# Recommended Business Actions
+
+Predicting risk is valuable only when appropriate business decisions follow.
+
+For this reason, each customer is assigned a recommended follow-up action.
+
+| Risk Level | Recommended Action                 |
+| ---------- | ---------------------------------- |
+| Low        | Continue regular monitoring        |
+| Medium     | Customer Relationship Manager Call |
+| High       | Email / SMS Notification           |
+
+---
+
+## Low Risk
+
+Customers classified as Low Risk demonstrate stable repayment behaviour.
+
+No immediate intervention is required beyond standard account monitoring.
+
+---
+
+## Medium Risk
+
+Medium-risk customers may exhibit early warning indicators such as occasional payment delays or increasing credit utilization.
+
+A proactive call from a Customer Relationship Manager provides an opportunity to understand potential financial concerns before they develop into defaults.
+
+---
+
+## High Risk
+
+Customers classified as High Risk require immediate attention.
+
+Automated email or SMS notifications can encourage timely repayment while simultaneously alerting banking teams to prioritize customer engagement.
+
+---
+
+# Dashboard Overview
+
+Prediction results are visualized through interactive dashboards developed using Power BI and HTML.
+
+The dashboards allow banking teams to:
+
+* Monitor customer risk distribution
+* Identify the highest-risk customers
+* Analyze financial behaviour
+* Compare debt levels across customer groups
+* Explore payment behaviour patterns
+* Understand the primary driver behind each customer's predicted risk
+
+The dashboards convert machine learning outputs into business-friendly insights that can support day-to-day decision making.
+
+---
+
+# Business Impact
+
+Traditional credit scoring systems often provide only a numerical score.
+
+Eagle Eye AI extends this concept by combining prediction, explanation and recommended actions within a single workflow.
+
+Potential applications include:
+
+* Customer prioritization
+* Early default prevention
+* Loan portfolio monitoring
+* Relationship manager decision support
+* Automated customer communication
+* Risk-based customer segmentation
+
+Rather than reacting after defaults occur, financial institutions can proactively identify vulnerable customers and intervene earlier.
+
+---
+
+# Future Enhancements
+
+The current implementation provides a strong proof of concept, while several future improvements remain possible.
+
+Potential extensions include:
+
+* Real-time prediction using SageMaker endpoints
+* SHAP value explanations for individual predictions
+* Automated model retraining pipelines
+* Streaming transaction analysis
+* Fraud detection integration
+* Customer lifetime value prediction
+* Personalized repayment recommendations
+* Interactive web application deployment
+
+---
+
+# Conclusion
+
+Eagle Eye AI demonstrates how machine learning, cloud computing and business intelligence can be integrated into a unified credit risk prediction platform.
+
+The project extends beyond traditional classification by incorporating feature engineering, explainable predictions and business-oriented recommendations that improve interpretability for financial institutions.
+
+By combining Amazon Athena, SageMaker, DynamoDB, Lambda, SNS and Power BI, the system provides a scalable workflow capable of transforming raw financial data into actionable customer intelligence.
+
+---
+
+# Acknowledgements
+
+This project was developed using the Home Credit Default Risk dataset as the primary source of customer financial information.
+
+The implementation was built as an end-to-end cloud-based machine learning project to explore practical applications of predictive analytics in banking and financial risk management.
+
+
