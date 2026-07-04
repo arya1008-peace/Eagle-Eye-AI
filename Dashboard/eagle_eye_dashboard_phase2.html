@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Eagle Eye AI — Risk Dashboard</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f4f5f7;
+    color: #1a1a1a;
+    padding: 24px;
+    min-height: 100vh;
+  }
+
+  .banner {
+    background: #0C1A2E;
+    padding: 18px 28px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+  }
+  .banner-eye {
+    width: 42px; height: 42px;
+    background: #1a3a5c;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    border: 1.5px solid #2a5a8c;
+    font-size: 20px;
+    color: #85B7EB;
+  }
+  .banner-title { font-size: 22px; font-weight: 500; color: #E6F1FB; letter-spacing: 0.04em; }
+  .banner-sub { font-size: 12px; color: #85B7EB; margin-top: 2px; }
+  .banner-badge {
+    margin-left: auto;
+    background: #1a3a5c;
+    border: 0.5px solid #378ADD;
+    color: #85B7EB;
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 8px;
+  }
+
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .metric-card {
+    background: #e8eaed;
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .metric-label {
+    font-size: 11px;
+    color: #5F5E5A;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+  }
+  .metric-value { font-size: 26px; font-weight: 500; color: #1a1a1a; line-height: 1; }
+  .metric-sub { font-size: 11px; color: #888780; margin-top: 4px; }
+
+  .charts-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .charts-row-3 {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .chart-card {
+    background: #ffffff;
+    border: 0.5px solid rgba(0,0,0,0.1);
+    border-radius: 12px;
+    padding: 16px 18px;
+  }
+  .chart-title { font-size: 13px; font-weight: 500; color: #1a1a1a; margin-bottom: 4px; }
+  .chart-desc { font-size: 11px; color: #888780; margin-bottom: 12px; }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 11px;
+    color: #5F5E5A;
+  }
+  .legend span { display: flex; align-items: center; gap: 4px; }
+  .swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; flex-shrink: 0; }
+
+  /* Footnote */
+  .footnote {
+    font-size: 11px;
+    color: #888780;
+    margin-top: 10px;
+    border-top: 0.5px solid rgba(0,0,0,0.08);
+    padding-top: 8px;
+    display: flex;
+    align-items: flex-start;
+    gap: 5px;
+  }
+  .footnote-marker {
+    color: #378ADD;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  /* Tooltip on driver label */
+  .info-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px; height: 14px;
+    background: #B5D4F4;
+    color: #0C447C;
+    border-radius: 50%;
+    font-size: 9px;
+    font-weight: 700;
+    cursor: default;
+    position: relative;
+    vertical-align: middle;
+    margin-left: 4px;
+    flex-shrink: 0;
+  }
+  .info-icon:hover .tooltip-box { display: block; }
+  .tooltip-box {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #0C1A2E;
+    color: #E6F1FB;
+    font-size: 11px;
+    font-weight: 400;
+    padding: 7px 10px;
+    border-radius: 6px;
+    width: 220px;
+    line-height: 1.5;
+    z-index: 100;
+    pointer-events: none;
+  }
+  .tooltip-box::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #0C1A2E;
+  }
+</style>
+</head>
+<body>
+
+<div class="banner">
+  <div class="banner-eye">&#9673;</div>
+  <div>
+    <div class="banner-title">Eagle Eye AI</div>
+    <div class="banner-sub">Phase 2 Risk Intelligence Platform — Credit Risk Analysis</div>
+  </div>
+  <div class="banner-badge">Phase 2 Results</div>
+</div>
+
+<div class="metrics">
+  <div class="metric-card">
+    <div class="metric-label">Total records</div>
+    <div class="metric-value">61,503</div>
+    <div class="metric-sub">Assessed customers</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-label">High risk</div>
+    <div class="metric-value" style="color:#E24B4A;">3,325</div>
+    <div class="metric-sub">5.4% of portfolio</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-label">Avg risk score</div>
+    <div class="metric-value">0.446</div>
+    <div class="metric-sub">Portfolio mean</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-label">Actions triggered</div>
+    <div class="metric-value">36,398</div>
+    <div class="metric-sub">CRM calls + alerts</div>
+  </div>
+</div>
+
+<div class="charts-row">
+  <div class="chart-card">
+    <div class="chart-title">Risk level distribution</div>
+    <div class="chart-desc">Proportion of customers by assigned risk tier</div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#378ADD"></span>Low — 40.8%</span>
+      <span><span class="swatch" style="background:#BA7517"></span>Medium — 53.8%</span>
+      <span><span class="swatch" style="background:#E24B4A"></span>High — 5.4%</span>
+    </div>
+    <div style="position:relative; width:100%; height:220px;">
+      <canvas id="riskPie" role="img" aria-label="Pie chart: Low 25105 (40.8%), Medium 33073 (53.8%), High 3325 (5.4%)">Low: 25105, Medium: 33073, High: 3325.</canvas>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-title">Action taken</div>
+    <div class="chart-desc">Response triggered per customer assessment</div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#378ADD"></span>Continue monitoring</span>
+      <span><span class="swatch" style="background:#BA7517"></span>CRM call</span>
+      <span><span class="swatch" style="background:#E24B4A"></span>Risk alert email</span>
+    </div>
+    <div style="position:relative; width:100%; height:220px;">
+      <canvas id="actionPie" role="img" aria-label="Donut chart: Continue Monitoring 25105, CRM Call 33073, Risk Alert Email 3325">Continue Monitoring: 25105, CRM Call: 33073, Risk Alert Email: 3325.</canvas>
+    </div>
+  </div>
+</div>
+
+<div class="charts-row-3">
+  <div class="chart-card">
+    <div class="chart-title">Primary risk drivers</div>
+    <div class="chart-desc">Count of customers by leading risk factor</div>
+    <div style="position:relative; width:100%; height:290px;">
+      <canvas id="driversBar" role="img" aria-label="Horizontal bar chart of risk drivers.">Risk drivers breakdown.</canvas>
+    </div>
+    <div class="footnote">
+      <span class="footnote-marker">*</span>
+      <span><strong>Multiple Moderate Risk Factors</strong> — assigned when no single risk factor is dominant. The customer shows several mid-level signals (e.g. partial late payments, moderate credit utilisation, limited account age) that together elevate risk without any one trigger breaching a high-risk threshold.</span>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-title">Risk score distribution</div>
+    <div class="chart-desc">Customers bucketed by score band</div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#5DCAA5"></span>Very low (&lt;0.2)</span>
+      <span><span class="swatch" style="background:#378ADD"></span>Low (0.2–0.4)</span>
+      <span><span class="swatch" style="background:#BA7517"></span>Med (0.4–0.6)</span>
+      <span><span class="swatch" style="background:#E24B4A"></span>High (0.6–0.8)</span>
+      <span><span class="swatch" style="background:#791F1F"></span>Very high (0.8–1.0)</span>
+    </div>
+    <div style="position:relative; width:100%; height:220px;">
+      <canvas id="scoreBar" role="img" aria-label="Bar chart of score distribution: 0.0-0.2: 1998, 0.2-0.4: 23107, 0.4-0.6: 26267, 0.6-0.8: 9594, 0.8-1.0: 537">Score band distribution.</canvas>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+  new Chart(document.getElementById('riskPie'), {
+    type: 'pie',
+    data: {
+      labels: ['Low', 'Medium', 'High'],
+      datasets: [{
+        data: [25105, 33073, 3325],
+        backgroundColor: ['#378ADD', '#BA7517', '#E24B4A'],
+        borderColor: '#ffffff',
+        borderWidth: 2,
+        hoverOffset: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const pct = ((ctx.raw / 61503) * 100).toFixed(1);
+              return ` ${ctx.raw.toLocaleString()} (${pct}%)`;
+            }
+          }
+        }
+      }
+    }
+  });
+
+  new Chart(document.getElementById('actionPie'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Continue monitoring', 'CRM call', 'Risk alert email'],
+      datasets: [{
+        data: [25105, 33073, 3325],
+        backgroundColor: ['#378ADD', '#BA7517', '#E24B4A'],
+        borderColor: '#ffffff',
+        borderWidth: 2,
+        hoverOffset: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '55%',
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: { label: ctx => ` ${ctx.raw.toLocaleString()}` }
+        }
+      }
+    }
+  });
+
+  new Chart(document.getElementById('driversBar'), {
+    type: 'bar',
+    data: {
+      labels: [
+        'Multiple moderate factors *',
+        'Payment shortfall',
+        'Short credit history',
+        'Credit card overuse',
+        'Consistent underpayment',
+        'Limited employment history',
+        'Multiple prev. rejections',
+        'Missed installments',
+        'Low payment completion'
+      ],
+      datasets: [{
+        label: 'Customers',
+        data: [19867, 19525, 8068, 4257, 3632, 2567, 2394, 1158, 35],
+        backgroundColor: ['#378ADD','#378ADD','#5DCAA5','#BA7517','#BA7517','#7F77DD','#7F77DD','#E24B4A','#B4B2A9'],
+        borderWidth: 0,
+        borderRadius: 3
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            title: items => {
+              const raw = items[0].label;
+              return raw.replace(' *', '');
+            },
+            label: ctx => {
+              if (ctx.dataIndex === 0) {
+                return [
+                  ` ${ctx.raw.toLocaleString()} customers`,
+                  ' ─────────────────',
+                  ' No single dominant risk factor.',
+                  ' Customer shows several mid-level',
+                  ' signals that together elevate risk.'
+                ];
+              }
+              return ` ${ctx.raw.toLocaleString()} customers`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(0,0,0,0.06)' },
+          ticks: {
+            color: '#5F5E5A',
+            font: { size: 11 },
+            callback: v => v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v
+          }
+        },
+        y: {
+          grid: { display: false },
+          ticks: { color: '#5F5E5A', font: { size: 11 } }
+        }
+      }
+    }
+  });
+
+  new Chart(document.getElementById('scoreBar'), {
+    type: 'bar',
+    data: {
+      labels: ['0.0–0.2', '0.2–0.4', '0.4–0.6', '0.6–0.8', '0.8–1.0'],
+      datasets: [{
+        label: 'Customers',
+        data: [1998, 23107, 26267, 9594, 537],
+        backgroundColor: ['#5DCAA5', '#378ADD', '#BA7517', '#E24B4A', '#791F1F'],
+        borderWidth: 0,
+        borderRadius: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: { label: ctx => ` ${ctx.raw.toLocaleString()} customers` }
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: '#5F5E5A', font: { size: 12 }, autoSkip: false }
+        },
+        y: {
+          grid: { color: 'rgba(0,0,0,0.06)' },
+          ticks: {
+            color: '#5F5E5A',
+            font: { size: 11 },
+            callback: v => v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v
+          }
+        }
+      }
+    }
+  });
+</script>
+</body>
+</html>
