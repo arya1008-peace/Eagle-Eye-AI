@@ -2,7 +2,7 @@
 
 # 🦅 Eagle Eye AI
 
-### Intelligent Credit Risk Prediction & Customer Prioritization Platform
+### Proactive Delinquency Prediction & Customer Prioritization Platform
 
 ---
 
@@ -198,11 +198,11 @@ Eagle-Eye-AI/
 │   ├── Phase1_Model.ipynb
 │   └── Phase2_Model.ipynb
 │
-├── dashboard/
+├── Dashboard/
 │
 ├── lambda/
 │
-├── data/
+├── sample_predictions/
 │
 ├── images/
 │
@@ -216,7 +216,8 @@ Eagle-Eye-AI/
 *A complete AWS architecture diagram illustrating the end-to-end workflow is included below.*
 
 
-<img width="1536" height="1024" alt="Eagle_Eye_AI_arch_diagram" src="https://github.com/user-attachments/assets/0ec6f509-1d85-4057-8b07-6572307a9e1d" />
+<img width="1536" height="1024" alt="architecture_diagram" src="https://github.com/user-attachments/assets/ef78424e-f8f0-4e7a-908e-72ee21004e88" />
+
 
 
 # Machine Learning Pipeline
