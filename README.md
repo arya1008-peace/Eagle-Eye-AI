@@ -215,7 +215,9 @@ Eagle-Eye-AI/
 
 *A complete AWS architecture diagram illustrating the end-to-end workflow is included below.*
 
-*(Insert architecture diagram here after it has been created.)*
+
+<img width="1536" height="1024" alt="Eagle_Eye_AI_arch_diagram" src="https://github.com/user-attachments/assets/0ec6f509-1d85-4057-8b07-6572307a9e1d" />
+
 
 # Machine Learning Pipeline
 
